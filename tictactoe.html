@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kolko i krzyzyk</title>
+    <style>
+        body {
+            background-color: black;
+        }
+
+        #miejsce {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            /* dodane */
+            height: 100vh;
+            /* dodane */
+        }
+
+        #planszax {
+            /* dodane */
+            margin-bottom: 20px;
+            /* dodane */
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 3px solid pink;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #wynik {
+            color: white;
+            font-size: 48px;
+            margin-top: 20px;
+            /* dodane */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="miejsce">
+        <div id="planszax"></div>
+        <p id="wynik"><br></p>
+    </div>
+    <script>
+        const planszax = ['', '', '', '', '', '', '', '', ''];
+
+        function tworzenieplanszy() {
+            let plansza = document.getElementById("planszax");
+            plansza.innerHTML = "";
+            for (let i = 0; i < 3; i++) { // zmieniamy wartość pętli na 3
+                let row = document.createElement("div"); // tworzymy nowy element div dla każdego rzędu
+                row.classList.add("row"); // dodajemy klasę "row" dla każdego rzędu
+                for (let j = 0; j < 3; j++) { // zmieniamy wartość pętli na 3
+                    let cell = document.createElement("div");
+                    cell.innerText = planszax[i * 3 + j]; // dostosowujemy indeks komórki do planszy 3x3
+                    cell.classList.add("cell");
+                    cell.addEventListener("click", () => handleCellClick(i * 3 + j)); // dostosowujemy indeks komórki do planszy 3x3
+                    row.appendChild(cell); // dodajemy komórkę do rzędu
+                }
+                plansza.appendChild(row); // dodajemy rzęd do planszy
+            }
+        }
+
+
+        tworzenieplanszy();
+
+        function handleCellClick(index) {
+            if (planszax[index] === '') {
+                planszax[index] = 'X';
+                tworzenieplanszy();
+                if (!sprawdzwygrana() && !sprawdzremis()) {
+                    ruchkomputer();
+                    tworzenieplanszy();
+                }
+            }
+        }
+//Funkcja komputera
+        function ruchkomputer() {
+            let index = Math.floor(Math.random() * 9);
+            while (planszax[index] !== '') {
+                index = Math.floor(Math.random() * 9);
+            }
+            planszax[index] = 'O';
+            if (sprawdzwygrana() || sprawdzremis()) {
+                return;
+            }
+        }
+//Funkcja sprawdzjaca czy juz ktos wygral
+        function sprawdzwygrana() {
+            const kombinacjewygranej = [ //tablica w ktorej wypisane sa wszystkie mozliwe kombinacje wygranej
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+            for (let i = 0; i < kombinacjewygranej.length; i++) {
+                const [a, b, c] = kombinacjewygranej[i];
+                if (planszax[a] && planszax[a] === planszax[b] && planszax[a] === planszax[c]) { //warunek sprawdza czy ten sam znak wystepuje w linii prostej pionowo/poziomo lub pod skosem
+                    document.getElementById("wynik").innerText = `${planszax[a]} wygrywa!`; //wypisuje wynik
+                    planszax.fill('');
+                    tworzenieplanszy();
+                    return true;
+                }
+            }
+            return false;
+        }
+//Funkcja sprawdzajaca czy jest remis
+        function sprawdzremis() {
+            if (planszax.every(cell => cell !== '')) { //warunek w ktorym jesli ten sam znak w zadnym wypadku nie spelnia wymagan wykonuje petle
+                document.getElementById("wynik").innerText = "Remis!";//wypisuje remis
+                planszax.fill('');
+                tworzenieplanszy();
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+
+</html>
